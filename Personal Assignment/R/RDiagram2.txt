@@ -1,0 +1,38 @@
+data = read.csv("d1,2.csv")
+data = data[,c("geo","TIME_PERIOD","OBS_VALUE")]
+print(data)
+
+colnames(data)[which(colnames(data)=="OBS_VALUE")] = "T_DEATHS"
+data$D_DEATHS = NA
+h = ceiling(nrow(data)/2)
+data[1:h,"D_DEATHS"] = data[(h+1):nrow(data),"T_DEATHS"]
+data = data[1:h,]
+
+data$EU_T_DEATHS = NA
+data$EU_D_DEATHS = NA
+h = ceiling(nrow(data)/2)
+data[1:h,"EU_T_DEATHS"] = data[(h+1):nrow(data),"T_DEATHS"]
+data[1:h,"EU_D_DEATHS"] = data[(h+1):nrow(data),"D_DEATHS"]
+data = data[1:h,]
+data = subset(data,select=-geo)
+
+data$GR_PER_DEATHS = NA
+data$EU_PER_DEATHS = NA
+data[,"GR_PER_DEATHS"] = data[,"D_DEATHS"]/data[,"T_DEATHS"]*100
+data[,"EU_PER_DEATHS"] = data[,"EU_D_DEATHS"]/data[,"EU_T_DEATHS"]*100
+print(data)
+
+dfPER = data[,c("TIME_PERIOD","GR_PER_DEATHS","EU_PER_DEATHS")]
+dfPER = tidyr::gather(dfPER, key = "Variable", value = "Value", -TIME_PERIOD)
+
+library(ggplot2)
+library(tidyr)
+library(gridExtra)
+
+ggplot(dfPER, aes(x = as.numeric(as.character(TIME_PERIOD)), y = Value, color = factor(Variable, levels = c("EU_PER_DEATHS", "GR_PER_DEATHS")))) +
+  geom_line() +
+  labs(title = "Dementia Deaths in Greece and in Europe for ages above 65",
+       x = "Year",
+       y = "Percentage of Deaths %") +
+  scale_color_manual(values = c("red", "deepskyblue"), name = "", labels = c("EU27", "Greece")) +
+  scale_x_continuous(breaks = as.numeric(as.character(dfPER$TIME_PERIOD)))

@@ -1,0 +1,35 @@
+data = read.csv("d7.csv")
+data = data[,c("geo","TIME_PERIOD","OBS_VALUE")]
+data <- data[data$TIME_PERIOD <= 2020, ]
+print(data)
+
+library(ggplot2)
+#ggplot(data, aes(x = TIME_PERIOD, y = OBS_VALUE, color = geo)) +
+#  geom_line() +
+#  labs(title = "Deaths caused by Dementia in countries of similar population size",
+#       x = "Year",
+#       y = "Deaths") +
+#  scale_color_manual(values = c("SE" = "gold", "PT" = "green","AT" = "red", "EL" = "skyblue","CZ" = #"blue"),
+#                     labels = c("Sweden", "Portugal","Austria", "Greece","Czechia"),
+#                     name = "Country")+
+#  scale_x_continuous(breaks = as.numeric(as.character(data$TIME_PERIOD)))
+
+
+data$POP <- c(84, 84, 84, 84, 84, 89 ,89 ,89 ,89 ,89, +
+104, 104, 104, 104, 104, 105, 105, 105, 105, 105, +
+108, 108, 108, 108, 108, 104,  104,  104,  104, 104, +
+106, 106, 106, 106, 103,  103,  103,  103, 103, +
+94, 94, 94, 94, 104, 104, 104, 104, 104, 104)
+
+data$D_PER_100K <- round(data$OBS_VALUE / data$POP,1)
+print(data)
+
+ggplot(data, aes(x = TIME_PERIOD, y = D_PER_100K, group = geo, color = geo)) +
+  geom_line() +
+  labs(title = "Deaths per 100K caused by Dementia in countries of similar population size",
+       x = "Year",
+       y = "Deaths") +
+  scale_color_manual(values = c("SE" = "gold", "PT" = "green","AT" = "red", "EL" = "skyblue","CZ" = "blue"),
+                     labels = c("Sweden", "Portugal","Austria", "Greece","Czechia"),
+                     name = "Country")+
+  scale_x_continuous(breaks = as.numeric(as.character(data$TIME_PERIOD)))

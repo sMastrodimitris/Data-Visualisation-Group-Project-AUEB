@@ -1,0 +1,41 @@
+data = read.csv("d8.csv")
+data = data[,c("geo","TIME_PERIOD","OBS_VALUE")]
+print(data)
+
+data$geo[data$geo == "Germany (until 1990 former territory of the FRG)"] <- "Germany"
+data$geo[data$geo == "European Union - 27 countries (from 2020)"] <- "EU 27"
+print(data)
+
+
+colnames(data)[which(colnames(data)=="OBS_VALUE")] = "T_DEATHS"
+data$D_DEATHS = NA
+h = ceiling(nrow(data)/2)
+data[1:h,"D_DEATHS"] = data[(h+1):nrow(data),"T_DEATHS"]
+data = data[1:h,]
+print(data)
+
+
+data$P_DEATHS = NA
+data$P_DEATHS = round(data$D_DEATHS/data$T_DEATHS,5)*100
+print(data)
+
+
+library(ggplot2)
+
+# Convert to factor for categorical representation
+data$TIME_PERIOD <- as.factor(data$TIME_PERIOD)
+data$F_DEATHS = data$P_DEATHS
+data$F_DEATHS <- as.factor(data$F_DEATHS)
+color_scale <- colorRampPalette(c("green", "red"))
+
+# Create trellis plot with line plots
+ggplot(data, aes(x = TIME_PERIOD, y = P_DEATHS, group = geo, color = F_DEATHS)) +
+  geom_line() +
+  facet_wrap(~geo, ncol = 5) +
+  xlab("2011-2020 Period") +
+  ylab("Percentage (%) of Dementia Deaths") +
+  ggtitle("Trellis Plot of Dementia Death Percentages by Country for the decade 2011-2020")+
+  theme(legend.position="none", axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  scale_color_manual(values = color_scale(length(unique(data$F_DEATHS))))
+
+

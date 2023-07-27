@@ -1,0 +1,54 @@
+data = read.csv("d9,10.csv")
+data = data[, c("sex", "TIME_PERIOD", "OBS_VALUE")]
+data = data[1:20, ]
+colnames(data)[which(colnames(data) == "OBS_VALUE")] = "F_DEATHS"
+data$M_DEATHS = NA
+h = ceiling(nrow(data) / 2)
+data[1:h, "M_DEATHS"] = data[(h + 1):nrow(data), "F_DEATHS"]
+print(data)
+
+data = data[1:h, ]
+data = subset(data, select = -sex)
+print(data)
+
+library(ggplot2)
+library(tidyr)
+library(gridExtra)
+
+
+dfF = subset(data, select = -M_DEATHS)
+y_max = max(c(dfF$F_DEATHS, -dfF$F_DEATHS, 0))
+
+
+plot1 = ggplot(dfF, aes(x = TIME_PERIOD, y = -F_DEATHS)) +
+  geom_bar(stat = "identity", fill = "red") +
+  labs(title = "Female deaths by Dementia",
+       x = "Time Period",
+       y = "") +
+  scale_y_continuous(limits = c(-y_max, 0), expand = c(0, 0)) +
+  theme_minimal() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 12, vjust = 0.5),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  scale_x_continuous(breaks = as.numeric(as.character(dfF$TIME_PERIOD)))
+
+
+dfM = subset(data, select = -F_DEATHS)
+
+plot2 = ggplot(dfM, aes(x = TIME_PERIOD, y = -M_DEATHS)) +
+  geom_bar(stat = "identity", fill = "red") +
+  labs(title = "Male Deaths by Dementia",
+       x = "Time Period",
+       y = "") +
+  scale_y_continuous(limits = c(-y_max, 0), expand = c(0, 0)) +
+  theme_minimal() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 12, vjust = 0.5),
+        axis.ticks.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  scale_x_continuous(breaks = as.numeric(as.character(dfM$TIME_PERIOD)))
+
+grid.arrange(plot1, plot2, nrow = 1)

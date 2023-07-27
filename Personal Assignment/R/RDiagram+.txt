@@ -1,0 +1,207 @@
+data = read.csv("d3,4,5.csv")
+data = data[,c("icd10","geo","TIME_PERIOD","OBS_VALUE")]
+
+colnames(data)[which(colnames(data)=="OBS_VALUE")] = "MALIGNANT_NEOPLASMS"
+data$DEMENTIA = NA
+data$HEART_DISEASE = NA
+data$CEREBROVASCULAR_DISEASE = NA
+data$LOWER_RESPITORY_DISEASE = NA
+print(data)
+
+h = 20
+data[1:20,"DEMENTIA"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+h=h+20
+data[1:20,"HEART_DISEASE"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+h =h+20
+data[1:20,"CEREBROVASCULAR_DISEASE"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+h=h+20
+data[1:20,"LOWER_RESPITORY_DISEASE"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+
+data = data[1:20,]
+data = subset(data,select=-icd10)
+dataGR  = data[1:10,]
+dataGR = subset(dataGR,select=-geo)
+dataEU = data[11:20,]
+dataEU = subset(dataEU,select=-geo)
+
+pChangeGR <- data.frame(
+  TIME_PERIOD = 2012:2020,
+  MALIGNANT_NEOPLASMS = rep(NA, 9),
+  DEMENTIA = rep(NA, 9),
+  HEART_DISEASE = rep(NA, 9),
+  CEREBROVASCULAR_DISEASE = rep(NA, 9),
+  LOWER_RESPITORY_DISEASE = rep(NA, 9)
+)
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "MALIGNANT_NEOPLASMS"]
+  denominator <- dataGR[i, "MALIGNANT_NEOPLASMS"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$MALIGNANT_NEOPLASMS[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "DEMENTIA"]
+  denominator <- dataGR[i, "DEMENTIA"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$DEMENTIA[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "HEART_DISEASE"]
+  denominator <- dataGR[i, "HEART_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$HEART_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "CEREBROVASCULAR_DISEASE"]
+  denominator <- dataGR[i, "CEREBROVASCULAR_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$CEREBROVASCULAR_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "LOWER_RESPITORY_DISEASE"]
+  denominator <- dataGR[i, "LOWER_RESPITORY_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$LOWER_RESPITORY_DISEASE[i] <- result
+}
+print(pChangeGR)
+
+
+pChangeEU <- data.frame(
+  TIME_PERIOD = 2012:2020,
+  MALIGNANT_NEOPLASMS = rep(NA, 9),
+  DEMENTIA = rep(NA, 9),
+  HEART_DISEASE = rep(NA, 9),
+  CEREBROVASCULAR_DISEASE = rep(NA, 9),
+  LOWER_RESPITORY_DISEASE = rep(NA, 9)
+)
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "MALIGNANT_NEOPLASMS"]
+  denominator <- dataEU[i, "MALIGNANT_NEOPLASMS"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$MALIGNANT_NEOPLASMS[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "DEMENTIA"]
+  denominator <- dataEU[i, "DEMENTIA"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$DEMENTIA[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "HEART_DISEASE"]
+  denominator <- dataEU[i, "HEART_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$HEART_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "CEREBROVASCULAR_DISEASE"]
+  denominator <- dataEU[i, "CEREBROVASCULAR_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$CEREBROVASCULAR_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "LOWER_RESPITORY_DISEASE"]
+  denominator <- dataEU[i, "LOWER_RESPITORY_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$LOWER_RESPITORY_DISEASE[i] <- result
+}
+print(pChangeEU)
+
+
+ypChange <- data.frame(geo = character())
+
+ypChange$MALIGNANT_NEOPLASMS <- numeric()
+ypChange$DEMENTIA <- numeric()
+ypChange$HEART_DISEASE <- numeric()
+ypChange$CEREBROVASCULAR_DISEASE <- numeric()
+ypChange$LOWER_RESPITORY_DISEASE <- numeric()
+
+ypChange <- ypChange[rep(1, 2), ]
+row.names(ypChange) <- c("1", "2")
+ypChange[1,"geo"] <- "GR"
+ypChange[2,"geo"] <- "EU27"
+
+ypChange[1,"MALIGNANT_NEOPLASMS"] = sum(pChangeGR$MALIGNANT_NEOPLASMS)/9
+ypChange[1,"DEMENTIA"] = sum(pChangeGR$DEMENTIA)/9
+ypChange[1,"HEART_DISEASE"] = sum(pChangeGR$HEART_DISEASE)/9
+ypChange[1,"CEREBROVASCULAR_DISEASE"] = sum(pChangeGR$CEREBROVASCULAR_DISEASE )/9
+ypChange[1,"LOWER_RESPITORY_DISEASE"] = sum(pChangeGR$LOWER_RESPITORY_DISEASE)/9
+
+ypChange[2,"MALIGNANT_NEOPLASMS"] = sum(pChangeEU$MALIGNANT_NEOPLASMS)/9
+ypChange[2,"DEMENTIA"] = sum(pChangeEU$DEMENTIA)/9
+ypChange[2,"HEART_DISEASE"] = sum(pChangeEU$HEART_DISEASE)/9
+ypChange[2,"CEREBROVASCULAR_DISEASE"] = sum(pChangeEU$CEREBROVASCULAR_DISEASE )/9
+ypChange[2,"LOWER_RESPITORY_DISEASE"] = sum(pChangeEU$LOWER_RESPITORY_DISEASE)/9
+
+print(ypChange)
+
+
+gr <- c(ypChange[1,"MALIGNANT_NEOPLASMS"],ypChange[1,"DEMENTIA"],ypChange[1,"HEART_DISEASE"],ypChange[1,"CEREBROVASCULAR_DISEASE"], ypChange[1,"LOWER_RESPITORY_DISEASE"])
+
+#barplot(gr,
+#main = "Mean Percentage Change in Greece",
+#xlab = "Percentage 5",
+#ylab = "Cause of Death",
+#names.arg = c("MALIGNANT NEOPLASMS","DEMENTIA","HEART DISEASE","CEREBROVASCULAR #DISEASE","LOWER RESPITORY DISEASE"),
+#col = "darkred",
+#horiz = FALSE)
+
+
+eu <- c(ypChange[2,"MALIGNANT_NEOPLASMS"],ypChange[2,"DEMENTIA"],ypChange[2,"HEART_DISEASE"],ypChange[2,"CEREBROVASCULAR_DISEASE"], ypChange[2,"LOWER_RESPITORY_DISEASE"])
+
+
+
+# barchart with added parameters
+#barplot(eu,
+#main = "Mean Percentage Change in Europe",
+#xlab = "Percentage 5",
+#ylab = "Cause of Death",
+#names.arg = c("MALIGNANT NEOPLASMS","DEMENTIA","HEART DISEASE","CEREBROVASCULAR #DISEASE","LOWER RESPITORY DISEASE"),
+#col = "darkred",
+#horiz = FALSE)
+
+MN = ypChange[1,"MALIGNANT_NEOPLASMS"]-ypChange[2,"MALIGNANT_NEOPLASMS"]
+D = abs(ypChange[1,"DEMENTIA"] - ypChange[2,"DEMENTIA"])
+H = abs(ypChange[1,"HEART_DISEASE"]-ypChange[2,"HEART_DISEASE"])
+CD = abs(ypChange[1,"CEREBROVASCULAR_DISEASE"] - ypChange[2,"CEREBROVASCULAR_DISEASE"])
+LR = abs(ypChange[1,"LOWER_RESPITORY_DISEASE"]-ypChange[2,"LOWER_RESPITORY_DISEASE"])
+
+
+grMeu = gr <- c(MN, D, H, CD, LR)
+
+library(ggplot2)
+library(tidyr)
+library(gridExtra)
+
+barplot(grMeu,
+	main = "(Average) Percentage Change Difference between Greece and Europe 2011-2020",
+	xlab = "Cause of Death",
+	ylab = "Mean Percentage (%) Change",
+	names.arg = c("MALIGNANT NEOPLASMS","DEMENTIA","HEART DISEASE","CEREBROVASCULAR DISEASE","L. 	RESPITORY DISEASE"),
+	col = "darkred",
+	horiz = FALSE)
+
+
+MN = 1.4-1.8
+D = 25-18
+H = (-4.4)-(-5.2)
+CD = (-5)-(4.3)
+LR = (-13.6)-(-4.4)
+
+grMeu = gr <- c(MN, D, H, CD, LR)
+
+
+barplot(grMeu,
+	main = "(Median-2016) Percentage Change Difference between Greece and Europe",
+	xlab = "Cause of Death",
+	ylab = "Mean Percentage (%) Change",
+	names.arg = c("MALIGNANT NEOPLASMS","DEMENTIA","HEART DISEASE","CEREBROVASCULAR DISEASE","L. 	RESPITORY DISEASE"),
+	col = "darkred",
+	horiz = FALSE)
+
+
+
+
+
+
+
+
+

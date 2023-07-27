@@ -1,0 +1,136 @@
+data = read.csv("d3,4,5.csv")
+data = data[,c("icd10","geo","TIME_PERIOD","OBS_VALUE")]
+
+colnames(data)[which(colnames(data)=="OBS_VALUE")] = "MALIGNANT_NEOPLASMS"
+data$DEMENTIA = NA
+data$HEART_DISEASE = NA
+data$CEREBROVASCULAR_DISEASE = NA
+data$LOWER_RESPITORY_DISEASE = NA
+
+h = 20
+data[1:20,"DEMENTIA"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+h=h+20
+data[1:20,"HEART_DISEASE"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+h =h+20
+data[1:20,"CEREBROVASCULAR_DISEASE"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+h=h+20
+data[1:20,"LOWER_RESPITORY_DISEASE"] = data[(h+1): (h+20),"MALIGNANT_NEOPLASMS"]
+data = data[1:20,]
+data = subset(data,select=-icd10)
+print(data)
+
+dataGR  = data[1:10,]
+dataGR = subset(dataGR,select=-geo)
+dataEU = data[11:20,]
+dataEU = subset(dataEU,select=-geo)
+
+pChangeGR <- data.frame(
+  TIME_PERIOD = 2012:2020,
+  MALIGNANT_NEOPLASMS = rep(NA, 9),
+  DEMENTIA = rep(NA, 9),
+  HEART_DISEASE = rep(NA, 9),
+  CEREBROVASCULAR_DISEASE = rep(NA, 9),
+  LOWER_RESPITORY_DISEASE = rep(NA, 9)
+)
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "MALIGNANT_NEOPLASMS"]
+  denominator <- dataGR[i, "MALIGNANT_NEOPLASMS"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$MALIGNANT_NEOPLASMS[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "DEMENTIA"]
+  denominator <- dataGR[i, "DEMENTIA"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$DEMENTIA[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "HEART_DISEASE"]
+  denominator <- dataGR[i, "HEART_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$HEART_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "CEREBROVASCULAR_DISEASE"]
+  denominator <- dataGR[i, "CEREBROVASCULAR_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$CEREBROVASCULAR_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataGR[i+1, "LOWER_RESPITORY_DISEASE"]
+  denominator <- dataGR[i, "LOWER_RESPITORY_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeGR$LOWER_RESPITORY_DISEASE[i] <- result
+}
+print(pChangeGR)
+
+
+pChangeEU <- data.frame(
+  TIME_PERIOD = 2012:2020,
+  MALIGNANT_NEOPLASMS = rep(NA, 9),
+  DEMENTIA = rep(NA, 9),
+  HEART_DISEASE = rep(NA, 9),
+  CEREBROVASCULAR_DISEASE = rep(NA, 9),
+  LOWER_RESPITORY_DISEASE = rep(NA, 9)
+)
+
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "MALIGNANT_NEOPLASMS"]
+  denominator <- dataEU[i, "MALIGNANT_NEOPLASMS"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$MALIGNANT_NEOPLASMS[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "DEMENTIA"]
+  denominator <- dataEU[i, "DEMENTIA"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$DEMENTIA[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "HEART_DISEASE"]
+  denominator <- dataEU[i, "HEART_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$HEART_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "CEREBROVASCULAR_DISEASE"]
+  denominator <- dataEU[i, "CEREBROVASCULAR_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$CEREBROVASCULAR_DISEASE[i] <- result
+}
+for (i in 1:9) {
+  numerator <- dataEU[i+1, "LOWER_RESPITORY_DISEASE"]
+  denominator <- dataEU[i, "LOWER_RESPITORY_DISEASE"]
+  result <- ((numerator / denominator) - 1) * 100
+  pChangeEU$LOWER_RESPITORY_DISEASE[i] <- result
+}
+print(pChangeEU)
+
+
+pChangeGR = pChangeGR[,c("TIME_PERIOD","DEMENTIA")]
+pChangeEU = pChangeEU[,c("TIME_PERIOD","DEMENTIA")]
+data = pChangeEU
+data$DEMENTIA = round((pChangeGR$DEMENTIA-pChangeEU$DEMENTIA),2)
+print(data)
+
+library(ggplot2)
+library(tidyr)
+library(gridExtra)
+
+
+ggplot(data, aes(x = TIME_PERIOD, y = DEMENTIA, fill = cut(DEMENTIA,
+                                                           breaks = c(-Inf, 0, 50, 200, Inf),
+                                                           labels = c("Skyblue", "Green", "Yellow", "Red")))) +
+  geom_bar(stat = "identity", color = "white") +
+  labs(title = "Change rate difference of Dementia Deaths between Greece and EU",
+       x = "Year",
+       y = "Percentage Difference %") +
+  scale_fill_manual(values = c("Skyblue" = "seagreen", "Green" = "gold", "Yellow" = "orangered", "Red" = "red"),
+                    labels = c("< 0%", "< 50%", "> 50%", "> 200%"),
+                    name = "Percentage Difference") +
+  scale_x_continuous(breaks = as.numeric(as.character(data$TIME_PERIOD))) +
+  theme_minimal() +
+  geom_text(aes(label = paste0(ifelse(DEMENTIA >= 0, "+", ""), DEMENTIA, "%")),
+            vjust = -0.5, size = 3, color = "black")
+
+

@@ -1,0 +1,62 @@
+library(ggplot2)
+library(grid)
+library(sf)
+library(dplyr)
+
+some.eu.countries = c("Austria", "Belgium", "Bulgaria", "Switzerland",
+  "Cyprus", "Czech Rep.", "Germany", "Denmark", "Estonia", "Greece",
+  "Spain", "Finland", "France", "Croatia", "Hungary", "Ireland", "Iceland",
+  "Italy", "Lithuania", "Luxemburg", "Latvia","Malta", "Netherlands",
+  "Norway", "Poland", "Portugal", "Romania", "Serbia", "Sweden",
+  "Slovenia", "Slovakia","UK")
+
+some.eu.maps <- map_data("world", region = some.eu.countries)
+
+region.lab.data <- some.eu.maps %>%
+  group_by(region) %>%
+  summarise(long = mean(long), lat = mean(lat))
+
+data = read.csv("d6.csv")
+data = data[,c("geo", "OBS_VALUE")]
+data = data[data$geo != "EU27_2020",]
+colnames(data)[which(colnames(data)=="OBS_VALUE")] = "T_DEATHS"
+data$D_DEATHS = NA
+data[1:32,"D_DEATHS"] = data[(32+1):nrow(data),"T_DEATHS"]
+data = data[1:32,]
+data$D_PER_DEATHS = NA
+data[,"D_PER_DEATHS"] = round(data[,"D_DEATHS"]/data[,"T_DEATHS"]*100,0)
+print(data)
+
+data$geo = c("Austria", "Belgium", "Bulgaria", "Switzerland",
+  "Cyprus", "Czech Republic", "Germany", "Denmark", "Estonia", "Greece",
+  "Spain", "Finland", "France", "Croatia", "Hungary", "Ireland", "Iceland",
+  "Italy", "Lithuania", "Luxemburg", "Latvia","Malta", "Netherlands",
+  "Norway", "Poland", "Portugal", "Romania", "Serbia", "Sweden",
+  "Slovenia", "Slovakia","UK")
+print(data)
+
+geoData = data[,c("geo", "D_PER_DEATHS")]
+colnames(geoData)[which(colnames(geoData )=="geo")] = "region"
+print(geoData)
+
+some.eu.maps = left_join(some.eu.maps,geoData, by="region")
+
+ggplot(some.eu.maps, aes(x = long, y = lat)) +
+  geom_polygon(aes(group = group, fill = D_PER_DEATHS)) +
+  geom_text(aes(label = region), data = region.lab.data, size = 4, hjust = 0.5) +
+  scale_fill_gradientn(colors = c("seagreen", "palegreen", "yellow", "orange", "sienna1", "orangered", "red")) +
+  theme_void() +
+  theme(legend.position = "right") +  # Position the legend on the right side
+  labs(title = "Percentage of Deaths over 65 caused by Dementian in 2018", fill = "Percentage %") 
+
+library(ggrepel)
+ggplot(some.eu.maps, aes(x = long, y = lat)) +
+  geom_polygon(aes(group = group, fill = D_PER_DEATHS)) +
+  geom_text_repel(aes(label = region), data = region.lab.data, size = 4, hjust = 0.5) +
+  scale_fill_gradientn(colors = c("seagreen", "palegreen", "yellow", "orange", "sienna1", "orangered", "red")) +
+  theme_void() +
+  theme(legend.position = "right") +  # Position the legend on the right side
+  labs(title = "Percentage of Deaths over 65 caused by Dementian in 2018", fill = "Percentage %") 
+
+
+
