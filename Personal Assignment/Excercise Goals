@@ -1,0 +1,16 @@
+The data refer to deaths from dementia in European countries, for theyears 2011-2020,by gender.
+
+Complementarty and more detailed Data can be also found in the Eurostat
+data base(https://ec.europa.eu/eurostat/databrowser/view/HLTH_CD_ARO__custom_5936571/default/table?lang=en)
+
+Of course you may use any other source of data if you want
+
+The scope of the project is to use the data (and perhaps any other
+relevant and useful data) to study whether there is an increasing trend
+for Greece or better whether the behavior of Greece is different than
+the rest of the Europe.
+
+You have to deliver the following:
+- A presentation (powerpoint or pdf) with at least 10 static visualizations using R, to study the data and create your opinion about the topic in a full and convincing manner. No interactive plots can be produced in this part. The presentation must be self-contained: suppose that you will present it in front of an audience of mixed knowledge on the topic.
+- at least 2 interactive plots using Tableau or R and a short presentation (powerpoint or pdf) explaining the interactive capabilities that you offer.
+- The R code, Tableau files and data files needed to generate all the plots.
